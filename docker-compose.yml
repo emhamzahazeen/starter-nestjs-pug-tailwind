@@ -1,0 +1,40 @@
+version: '3'
+services:
+  mysql:
+    image: 'mysql:8.0'
+    ports:
+      - '${FORWARD_DB_PORT:-3306}:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+    volumes:
+      - 'cybnor-mefile-mysql:/var/lib/mysql'
+    networks:
+      - cybnor-mefile
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping" ]
+
+  phpmyadmin:
+    image: 'phpmyadmin/phpmyadmin:latest'
+    ports:
+      - '${FORWARD_PHPMYADMIN_PORT:-9700}:80'
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      PMA_ARBITRARY: 1
+    networks:
+      - cybnor-mefile
+    depends_on:
+      - mysql
+networks:
+  cybnor-mefile:
+    driver: bridge
+volumes:
+  cybnor-mefile-redis:
+    driver: local
+  cybnor-mefile-mysql:
+    driver: local
